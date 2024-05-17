@@ -1,0 +1,79 @@
+apply plugin: 'jacoco'
+
+jacoco {
+    toolVersion '0.8.7'
+}
+
+tasks.withType(Test) {
+    jacoco {
+        jacoco.includeNoLocationClasses = true
+        excludes = ['jdk.internal.*']
+    }
+}
+
+project.afterEvaluate {
+
+    tasks.create(name: "allJacocoReport", type: JacocoReport) {
+
+        group = "Reporting"
+        description = "Generate overall Jacoco coverage report for the debug build."
+
+        reports {
+            html.enabled = true
+            xml.enabled = true
+        }
+
+        def excludes = [
+                '**/R.class',
+                '**/R$*.class',
+                '**/BuildConfig.*',
+                '**/Manifest*.*',
+                '**/*Test*.*',
+                'android/**/*.*',
+                'androidx/**/*.*',
+                '**/*$ViewInjector*.*',
+                '**/*Dagger*.*',
+                '**/*MembersInjector*.*',
+                '**/*_Factory.*',
+                '**/*_Provide*Factory*.*',
+                '**/*_ViewBinding*.*',
+                '**/AutoValue_*.*',
+                '**/R2.class',
+                '**/R2$*.class',
+                '**/*Directions$*',
+                '**/*Directions.*',
+                '**/*Binding.*'
+        ]
+
+        def jClasses = subprojects.collect { proj ->
+            "${proj.buildDir}/intermediates/javac/freeDebug/classes"
+        }
+//        def kClasses = subprojects.collect { proj ->
+//            "${proj.buildDir}/tmp/kotlin-classes/debug"
+//        }
+        def javaClasses = jClasses.collect { path ->
+            fileTree(dir: path, excludes: excludes)
+        }
+//        def kotlinClasses = kClasses.collect { path ->
+//            fileTree(dir: path, excludes: excludes)
+//        }
+
+//        classDirectories.from = files([javaClasses, kotlinClasses])
+        classDirectories.from = files([javaClasses])
+        // "${proj.projectDir}/src/debug/java", "${proj.projectDir}/src/debug/kotlin"
+        def sources = subprojects.collect { proj ->
+            ["${proj.projectDir}/src/main/java"]
+        }.flatten()
+
+        sourceDirectories.from = files(sources)
+
+        def executions = subprojects.findAll { proj ->
+            def path = "${proj.buildDir}/jacoco/testFreeDebugUnitTest.exec"
+            (new File(path)).exists()
+        }.collect {proj ->
+            "${proj.buildDir}/jacoco/testFreeDebugUnitTest.exec"
+        }
+
+        executionData.from = files(executions)
+    }
+}

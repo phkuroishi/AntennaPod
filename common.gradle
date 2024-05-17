@@ -1,0 +1,130 @@
+android {
+    compileSdk 33
+
+    defaultConfig {
+        minSdk 21
+        targetSdk 33
+
+        vectorDrawables.useSupportLibrary true
+        vectorDrawables.generatedDensities = []
+
+        testApplicationId "de.danoeh.antennapod.core.tests"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard.cfg"
+            resValue "string", "app_name", "AntennaPod"
+        }
+        debug {
+
+            resValue "string", "app_name", "AntennaPod Debug"
+        }
+    }
+
+    packagingOptions {
+        resources {
+            excludes += ["META-INF/LICENSE.txt",
+                         "META-INF/NOTICE.txt",
+                         "META-INF/CHANGES",
+                         "META-INF/README.md"]
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+
+    testOptions {
+        animationsDisabled = true
+        unitTests {
+            includeAndroidResources = true
+        }
+    }
+
+    lint {
+        disable "GradleDependency"
+        checkDependencies true
+        warningsAsErrors true
+        abortOnError false
+        checkGeneratedSources = true
+    }
+
+    buildFeatures {
+        viewBinding true
+    }
+}
+gradle.projectsEvaluated {
+    tasks.withType(JavaCompile) {
+        options.compilerArgs << "-Xlint"
+    }
+}
+
+
+
+//project.afterEvaluate {
+//
+//    tasks.create(name: "jacocoCoverage", type: JacocoReport) {
+//
+//        group = "Reporting"
+//        description = "Generate overall Jacoco coverage report for the debug build."
+//
+//        reports {
+//            html.enabled = true
+//            xml.enabled = true
+//        }
+//
+//        def excludes = [
+//                '**/R.class',
+//                '**/R$*.class',
+//                '**/BuildConfig.*',
+//                '**/Manifest*.*',
+//                '**/*Test*.*',
+//                'android/**/*.*',
+//                'androidx/**/*.*',
+//                '**/*$ViewInjector*.*',
+//                '**/*Dagger*.*',
+//                '**/*MembersInjector*.*',
+//                '**/*_Factory.*',
+//                '**/*_Provide*Factory*.*',
+//                '**/*_ViewBinding*.*',
+//                '**/AutoValue_*.*',
+//                '**/R2.class',
+//                '**/R2$*.class',
+//                '**/*Directions$*',
+//                '**/*Directions.*',
+//                '**/*Binding.*'
+//        ]
+//
+//        def jClasses = subprojects.collect { proj ->
+//            "${proj.buildDir}/intermediates/javac/freeDebug/classes"
+//        }
+////        def kClasses = subprojects.collect { proj ->
+////            "${proj.buildDir}/tmp/kotlin-classes/debug"
+////        }
+//        def javaClasses = jClasses.collect { path ->
+//            fileTree(dir: path, excludes: excludes)
+//        }
+////        def kotlinClasses = kClasses.collect { path ->
+////            fileTree(dir: path, excludes: excludes)
+////        }
+//
+//        classDirectories.from = files([javaClasses])
+//        def sources = subprojects.collect { proj ->
+//            ["${proj.projectDir}/src/main/java"]
+//        }.flatten()
+//
+//        sourceDirectories.from = files(sources)
+//
+//        def executions = subprojects.findAll { proj ->
+//            def path = "${proj.buildDir}/jacoco/testFreeDebugUnitTest.exec"
+//            (new File(path)).exists()
+//        }.collect {proj ->
+//            "${proj.buildDir}/jacoco/testFreeDebugUnitTest.exec"
+//        }
+//
+//        executionData.from = files(executions)
+//    }
+//}
